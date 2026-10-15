@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScreenCord</title>
+<meta name="description" content="Entre com o Discord, monte grupos com seus amigos e compartilhe a tela em tempo real.">
+<link rel="icon" type="image/png" href="icon.png">
+<style>
+  :root {
+    --bg: #0f1020;
+    --surface: #181a2e;
+    --border: #2a2d4a;
+    --text: #e8e9f5;
+    --muted: #9a9cbc;
+    --accent: #5865f2;
+    --accent-hover: #4752c4;
+    --accent-2: #8b5cf6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+  header.hero {
+    text-align: center;
+    padding: 72px 0 56px;
+    background: radial-gradient(ellipse at top, rgba(88, 101, 242, .25), transparent 60%);
+  }
+  .hero img { width: 128px; height: 128px; }
+  h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); margin: 12px 0 8px; letter-spacing: -.02em; }
+  .tagline { color: var(--muted); font-size: 1.15rem; max-width: 560px; margin: 0 auto 32px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px; border-radius: 10px;
+    background: var(--accent); color: #fff; text-decoration: none;
+    font-weight: 600; font-size: 1.05rem;
+    transition: background .15s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn[aria-disabled="true"] { opacity: .6; pointer-events: none; }
+  .meta { color: var(--muted); font-size: .9rem; margin-top: 12px; min-height: 1.4em; }
+  section { padding: 48px 0; }
+  h2 { font-size: 1.5rem; margin: 0 0 20px; }
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .note { background: var(--surface); border-left: 3px solid var(--accent-2); border-radius: 8px; padding: 14px 18px; color: var(--muted); font-size: .95rem; }
+  .note strong { color: var(--text); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
+  td a { color: #a5adff; }
+  .tag { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 99px; background: rgba(88, 101, 242, .2); color: #a5adff; margin-left: 6px; }
+  footer { color: var(--muted); font-size: .85rem; text-align: center; padding: 32px 0 48px; }
+  footer a { color: var(--muted); }
+  @media (max-width: 560px) {
+    th:nth-child(3), td:nth-child(3) { display: none; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <img src="icon.png" alt="">
+    <h1>ScreenCord</h1>
+    <p class="tagline">Entre com a sua conta do Discord, monte grupos com seus amigos e compartilhe a tela em tempo real, com áudio.</p>
+    <a id="download" class="btn" href="https://github.com/miguelsoeth/screencord/releases/latest" aria-disabled="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      <span id="download-label">Baixar para Windows</span>
+    </a>
+    <div id="download-meta" class="meta">Procurando a versão mais recente…</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section>
+    <h2>O que ele faz</h2>
+    <div class="features">
+      <div class="card"><h3>Login com o Discord</h3><p>Entra pelo navegador, sem senha passando pelo app. A sessão fica salva e cifrada no seu computador.</p></div>
+      <div class="card"><h3>Amigos e grupos</h3><p>Encontre quem também usa o ScreenCord, adicione como amigo e crie salas com presença em tempo real.</p></div>
+      <div class="card"><h3>Compartilhamento de tela</h3><p>Tela inteira ou uma janela, até 1080p a 60 fps, com o áudio do computador ou só do programa compartilhado.</p></div>
+      <div class="card"><h3>Leve</h3><p>Codificação H.264 pela placa de vídeo quando disponível. O instalador já traz tudo o que o app precisa.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Instalação</h2>
+    <div class="note">
+      Requer <strong>Windows 10 (2004 ou mais recente) ou Windows 11, 64 bits</strong>. Instala só para o seu usuário, sem pedir administrador.
+      O instalador ainda não é assinado: se o Windows mostrar <strong>"O Windows protegeu o computador"</strong>, clique em
+      <strong>Mais informações → Executar assim mesmo</strong>.
+    </div>
+  </section>
+
+  <section id="versions" hidden>
+    <h2>Versões</h2>
+    <table>
+      <thead><tr><th>Versão</th><th>Instalador</th><th>Data</th></tr></thead>
+      <tbody id="versions-body"></tbody>
+    </table>
+  </section>
+</main>
+
+<footer>
+  <a href="https://github.com/miguelsoeth/screencord/releases">Todas as versões no GitHub</a>
+</footer>
+
+<script>
+(async () => {
+  const btn = document.getElementById('download');
+  const label = document.getElementById('download-label');
+  const meta = document.getElementById('download-meta');
+  const enable = () => btn.removeAttribute('aria-disabled');
+
+  const msiOf = r => (r.assets || []).find(a => a.name.toLowerCase().endsWith('.msi'));
+  const sizeMb = a => (a.size / 1048576).toFixed(0) + ' MB';
+  const date = s => new Date(s).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  try {
+    const res = await fetch('https://api.github.com/repos/miguelsoeth/screencord/releases?per_page=30', {
+      headers: { Accept: 'application/vnd.github+json' }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const releases = (await res.json()).filter(r => !r.draft && !r.prerelease && msiOf(r));
+    if (!releases.length) {
+      meta.textContent = 'Nenhuma versão publicada ainda.';
+      return;
+    }
+
+    const latest = releases[0];
+    const asset = msiOf(latest);
+    btn.href = asset.browser_download_url;
+    label.textContent = 'Baixar ' + latest.tag_name + ' para Windows';
+    meta.textContent = asset.name + ' · ' + sizeMb(asset) + ' · ' + date(latest.published_at);
+    enable();
+
+    const body = document.getElementById('versions-body');
+    for (const r of releases) {
+      const a = msiOf(r);
+      const tr = document.createElement('tr');
+
+      const tdVersion = document.createElement('td');
+      const link = document.createElement('a');
+      link.href = r.html_url;
+      link.textContent = r.tag_name;
+      tdVersion.append(link);
+      if (r === latest) {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = 'mais recente';
+        tdVersion.append(tag);
+      }
+
+      const tdFile = document.createElement('td');
+      const dl = document.createElement('a');
+      dl.href = a.browser_download_url;
+      dl.textContent = a.name;
+      tdFile.append(dl, ' (' + sizeMb(a) + ')');
+
+      const tdDate = document.createElement('td');
+      tdDate.textContent = date(r.published_at);
+
+      tr.append(tdVersion, tdFile, tdDate);
+      body.append(tr);
+    }
+    document.getElementById('versions').hidden = false;
+  } catch {
+    // Sem a API do GitHub (limite de requisições, offline): o botão leva à página de releases.
+    meta.textContent = 'Veja a versão mais recente na página de releases.';
+    enable();
+  }
+})();
+</script>
+</body>
+</html>
