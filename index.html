@@ -56,7 +56,22 @@
   }
 
   header.hero { text-align: center; padding: 72px 0 48px; }
-  .hero img { width: 136px; height: 136px; filter: drop-shadow(0 10px 32px rgba(76, 91, 255, .35)); }
+  /* O mascote do app em camadas (imagens de 600×439): monitor e olhos, que seguem o mouse, piscam e ficam tontos
+     com um clique. As posições são frações da arte, então tudo escala com a largura. */
+  .mascot {
+    position: relative; width: 196px; aspect-ratio: 600 / 439; margin: 0 auto;
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+    filter: drop-shadow(0 10px 32px rgba(76, 91, 255, .35));
+  }
+  .mascot img { display: block; width: 100%; height: 100%; pointer-events: none; -webkit-user-drag: none; }
+  .mascot > div, .mascot .eye { position: absolute; }
+  /* O tapa balança o monitor sobre o pé, que fica parado na mesa. */
+  .mascot .stage { inset: 0; transform-origin: 50% 97%; }
+  .mascot .body { inset: 0; }
+  .mascot .eye { top: calc(116 / 439 * 100%); width: calc(128 / 600 * 100%); height: calc(152 / 439 * 100%); }
+  .mascot .eye.left { left: calc(149 / 600 * 100%); }
+  .mascot .eye.right { left: calc(323 / 600 * 100%); }
+  .mascot .eye div, .mascot .eye img { width: 100%; height: 100%; transform-origin: 50% 50%; }
   h1 { font-size: clamp(2.4rem, 7vw, 3.6rem); margin: 10px 0 8px; letter-spacing: -.02em; line-height: 1.1; }
   .grad { background: var(--accent); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .tagline { color: var(--muted); font-size: 1.15rem; max-width: 560px; margin: 0 auto 32px; }
@@ -138,7 +153,13 @@
 <body>
 <header class="hero">
   <div class="wrap">
-    <img src="icon.png" alt="">
+    <div class="mascot" id="mascot" aria-hidden="true">
+      <div class="stage">
+        <div class="body"><img src="mascot-monitor.png" alt=""></div>
+        <div class="eye left"><div class="squint"><img class="lid" src="mascot-eye.png" alt=""></div></div>
+        <div class="eye right"><div class="squint"><img class="lid" src="mascot-eye.png" alt=""></div></div>
+      </div>
+    </div>
     <h1>Screen<span class="grad">Cord</span></h1>
     <p class="tagline">Entre com a sua conta do Discord, monte grupos com seus amigos e compartilhe a tela em tempo real, com áudio.</p>
     <a id="download" class="btn" href="https://github.com/miguelsoeth/screencord/releases/latest" aria-disabled="true">
@@ -212,6 +233,179 @@
 </footer>
 
 <script>
+// O mascote, como na tela de login do app: cada olho acompanha o mouse pela página, com atraso suave e um leve
+// paralaxe (o monitor anda bem menos que os olhos), e fica vesgo com o mouse bem no meio do ícone. Os olhos piscam
+// de tempos em tempos e, com um clique, o monitor balança como depois de um tapa e fica tonto. Parado quando o
+// sistema pede menos movimento.
+(() => {
+  const root = document.getElementById('mascot');
+  const stage = root.querySelector('.stage');
+  const body = root.querySelector('.body');
+  const [leftEye, rightEye] = root.querySelectorAll('.eye');
+  const [leftSquint, rightSquint] = root.querySelectorAll('.squint');
+  const lids = root.querySelectorAll('.lid');
+
+  // Tamanho das imagens e centro de cada olho nelas: as contas de posição são feitas nesse espaço.
+  const ART_W = 600, ART_H = 439, EYE_W = 128, EYE_H = 152;
+  const LEFT_EYE = { x: 213, y: 192 }, RIGHT_EYE = { x: 387, y: 192 };
+  // Deslocamento máximo dos olhos, nas coordenadas das imagens; o monitor anda uma fração disso.
+  const RANGE_X = 41, RANGE_Y = 30, PARALLAX = 0.2;
+  // Distância do mouse (em px) em que o olhar chega à metade do alcance: perto do ícone ele responde mais.
+  const REACH = 260;
+  // Raio (nas coordenadas das imagens) em volta do meio dos olhos em que eles vão ficando vesgos.
+  const CROSS_RADIUS = 250;
+  // Quanto maior, mais rápido o olhar alcança o alvo (por segundo). Tonto, os olhos giram mais soltos.
+  const SMOOTHING = 4.5, DIZZY_SMOOTHING = 16;
+  // Depois do tapa: quanto tempo (ms) os olhos ficam girando, e quantas voltas por segundo.
+  const DIZZY_MS = 1800, DIZZY_TURNS = 1.6;
+
+  const EASE_IN = 'cubic-bezier(.12, 0, .39, 0)';
+  const EASE_OUT = 'cubic-bezier(.61, 1, .88, 1)';
+  const EASE_IN_OUT = 'cubic-bezier(.37, 0, .63, 1)';
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let mouse = null;
+  let left = { x: 0, y: 0 }, right = { x: 0, y: 0 };
+  let slappedAt = null;
+  let frame = 0, lastFrame = null;
+
+  const isDizzy = () => slappedAt !== null && performance.now() - slappedAt < DIZZY_MS;
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const smoothStep = v => { const x = clamp(v, 0, 1); return x * x * (3 - 2 * x); };
+
+  // Para onde cada olho olha, de -1 a 1 em cada eixo. Longe, os dois olham juntos na direção do mouse; perto do
+  // meio dos olhos, cada um vira para dentro, e no centro eles ficam vesgos.
+  function gaze() {
+    if (!mouse) return [{ x: 0, y: 0 }, { x: 0, y: 0 }];
+    const r = root.getBoundingClientRect();
+    const scale = r.width / ART_W;
+    const at = (x, y) => ({ x: r.left + x * scale, y: r.top + y * scale });
+
+    const c = at(ART_W / 2, ART_H / 2);
+    const ox = mouse.x - c.x, oy = mouse.y - c.y;
+    const dist = Math.hypot(ox, oy);
+    const k = dist > 0 ? 1 / (dist + REACH) : 0;
+    const together = { x: ox * k, y: oy * k };
+
+    const m = at((LEFT_EYE.x + RIGHT_EYE.x) / 2, LEFT_EYE.y);
+    const mx = mouse.x - m.x, my = mouse.y - m.y;
+    const radius = CROSS_RADIUS * scale;
+    const cross = smoothStep(1 - Math.hypot(mx, my) / radius);
+    const lookY = clamp(my / radius, -1, 1);
+    const toward = tx => ({ x: together.x + (tx - together.x) * cross, y: together.y + (lookY - together.y) * cross });
+    return [toward(1), toward(-1)];
+  }
+
+  // Tontos, os olhos giram em sentidos opostos, em círculos que vão diminuindo até parar.
+  function dizzyGaze() {
+    const progress = (performance.now() - slappedAt) / DIZZY_MS;
+    const radius = 0.9 * Math.pow(1 - progress, 0.7);
+    const angle = progress * (DIZZY_MS / 1000) * DIZZY_TURNS * 2 * Math.PI;
+    return [
+      { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius },
+      { x: -Math.cos(angle) * radius, y: Math.sin(angle) * radius }
+    ];
+  }
+
+  // Os deslocamentos ficam em % do próprio elemento, então não dependem do tamanho do mascote.
+  const shift = (el, x, y, w, h) => { el.style.translate = `${x / w * 100}% ${y / h * 100}%`; };
+  function apply() {
+    shift(leftEye, left.x * RANGE_X, left.y * RANGE_Y, EYE_W, EYE_H);
+    shift(rightEye, right.x * RANGE_X, right.y * RANGE_Y, EYE_W, EYE_H);
+    shift(body, (left.x + right.x) / 2 * RANGE_X * PARALLAX, (left.y + right.y) / 2 * RANGE_Y * PARALLAX, ART_W, ART_H);
+  }
+
+  function tick(now) {
+    frame = 0;
+    const elapsed = lastFrame === null ? 0 : (now - lastFrame) / 1000;
+    lastFrame = now;
+    const dizzy = isDizzy();
+    if (elapsed > 0) {
+      const [tl, tr] = dizzy ? dizzyGaze() : gaze();
+      // Aproximação exponencial: igual em qualquer taxa de quadros, e desacelera ao chegar.
+      const step = 1 - Math.exp(-(dizzy ? DIZZY_SMOOTHING : SMOOTHING) * Math.min(elapsed, 0.1));
+      left = { x: left.x + (tl.x - left.x) * step, y: left.y + (tl.y - left.y) * step };
+      right = { x: right.x + (tr.x - right.x) * step, y: right.y + (tr.y - right.y) * step };
+      if (!dizzy && Math.hypot(tl.x - left.x, tl.y - left.y) < 0.0005 && Math.hypot(tr.x - right.x, tr.y - right.y) < 0.0005) {
+        left = tl; right = tr;
+        apply();
+        lastFrame = null;
+        return;
+      }
+      apply();
+    }
+    frame = requestAnimationFrame(tick);
+  }
+
+  const animate = () => { if (!frame) frame = requestAnimationFrame(tick); };
+
+  addEventListener('pointermove', e => {
+    if (reduced.matches || e.pointerType === 'touch') return;
+    mouse = { x: e.clientX, y: e.clientY };
+    animate();
+  }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => { mouse = null; animate(); });
+  addEventListener('blur', () => { mouse = null; animate(); });
+
+  // Keyframes com (milissegundos, valor), suavizados entre um e outro.
+  function keyframes(frames, toStyle, easing = EASE_IN_OUT) {
+    const end = frames[frames.length - 1][0];
+    return [frames.map(([ms, v]) => ({ offset: ms / end, easing, ...toStyle(v) })), end];
+  }
+  const play = (el, [frames, duration]) => el.animate(frames, { duration });
+
+  // O monitor pula um pouco com o impacto, assenta e balança para os lados sobre o pé (inclinado, com a base
+  // parada), cada vez menos. Valores em graus e nas coordenadas das imagens.
+  function shake() {
+    play(stage, keyframes([[0, 0], [45, -7], [140, 5.5], [250, -3.6], [360, 2.2], [470, -1.2], [580, 0.5], [700, 0]],
+      v => ({ transform: `skewX(${v}deg)` })));
+    play(stage, keyframes([[0, 0], [60, -12], [150, 0], [220, -3.5], [290, 0]],
+      v => ({ translate: `0 ${v / ART_H * 100}%` })));
+  }
+
+  // Tonto, um olho se aperta e o outro se arregala; os dois voltam ao normal quando passa.
+  function squint() {
+    const end = DIZZY_MS;
+    play(leftSquint, keyframes([[0, 1], [120, 0.7], [end - 300, 0.74], [end, 1]], v => ({ transform: `scaleY(${v})` })));
+    play(rightSquint, keyframes([[0, 1], [120, 1.12], [end - 300, 1.1], [end, 1]], v => ({ transform: `scale(${v})` })));
+  }
+
+  root.addEventListener('pointerdown', e => {
+    if (reduced.matches || e.button !== 0) return;
+    e.preventDefault();
+    slappedAt = performance.now();
+    shake();
+    squint();
+    animate();
+  });
+
+  // Fecha em 75 ms, abre em 120; de vez em quando, uma piscada dupla.
+  function blink() {
+    const frames = [
+      { offset: 0, transform: 'scaleY(1)', easing: EASE_IN },
+      { offset: 75, transform: 'scaleY(.08)', easing: EASE_OUT },
+      { offset: 195, transform: 'scaleY(1)' }
+    ];
+    if (Math.random() < 0.2) {
+      frames[2].easing = 'linear';
+      frames.push(
+        { offset: 260, transform: 'scaleY(1)', easing: EASE_IN },
+        { offset: 335, transform: 'scaleY(.08)', easing: EASE_OUT },
+        { offset: 455, transform: 'scaleY(1)' });
+    }
+    const duration = frames[frames.length - 1].offset;
+    const scaled = frames.map(f => ({ ...f, offset: f.offset / duration }));
+    lids.forEach(lid => lid.animate(scaled, { duration }));
+  }
+
+  (function scheduleBlink() {
+    setTimeout(() => {
+      if (!reduced.matches && !document.hidden && !isDizzy()) blink();
+      scheduleBlink();
+    }, 2500 + Math.random() * 4500);
+  })();
+})();
+
 (async () => {
   const btn = document.getElementById('download');
   const label = document.getElementById('download-label');
