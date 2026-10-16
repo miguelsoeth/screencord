@@ -8,58 +8,130 @@
 <link rel="icon" type="image/png" href="icon.png">
 <style>
   :root {
-    --bg: #0f1020;
-    --surface: #181a2e;
-    --border: #2a2d4a;
-    --text: #e8e9f5;
-    --muted: #9a9cbc;
-    --accent: #5865f2;
-    --accent-hover: #4752c4;
-    --accent-2: #8b5cf6;
+    color-scheme: dark;
+    --bg: #0a0b10;
+    --surface: #121319;
+    --surface-top: #15161d;
+    --surface-bottom: #101117;
+    --raised: #1e2029;
+    --border: #2b2e3c;
+    --text: #edeef5;
+    --muted: #9a9db0;
+    --blue: #2e9bff;
+    --indigo: #4c5bff;
+    --violet: #9b4dff;
+    --accent: linear-gradient(135deg, var(--blue), var(--indigo) 50%, var(--violet));
+    --glow: rgba(91, 77, 255, .55);
+    --link: #a5adff;
   }
   * { box-sizing: border-box; }
+  html { background: var(--bg); }
   body {
     margin: 0;
-    background: var(--bg);
+    min-height: 100vh;
     color: var(--text);
     font: 16px/1.6 "Segoe UI", system-ui, -apple-system, sans-serif;
+    /* O mesmo fundo do app: quase preto, com um brilho azul fraco no alto e violeta embaixo. */
+    background:
+      radial-gradient(ellipse 70% 55% at 10% 0%, rgba(46, 123, 255, .10), transparent 70%),
+      radial-gradient(ellipse 70% 60% at 100% 100%, rgba(139, 77, 255, .09), transparent 70%),
+      linear-gradient(135deg, #0a0b12, #09090e 50%, #0c0a13);
+    background-attachment: fixed;
   }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
-  header.hero {
-    text-align: center;
-    padding: 72px 0 56px;
-    background: radial-gradient(ellipse at top, rgba(88, 101, 242, .25), transparent 60%);
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 16px; }
+
+  /* Cartões em relevo, como no app: luz azul na borda de cima e reflexo violeta embaixo. */
+  .panel {
+    position: relative;
+    background: linear-gradient(180deg, var(--surface-top), var(--surface-bottom));
+    border-radius: 14px;
+    isolation: isolate;
   }
-  .hero img { width: 128px; height: 128px; }
-  h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); margin: 12px 0 8px; letter-spacing: -.02em; }
+  .panel::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; z-index: -1;
+    background: linear-gradient(170deg, rgba(92, 120, 255, .45), rgba(255, 255, 255, .08) 45%, rgba(139, 77, 255, .3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  header.hero { text-align: center; padding: 72px 0 48px; }
+  .hero img { width: 136px; height: 136px; filter: drop-shadow(0 10px 32px rgba(76, 91, 255, .35)); }
+  h1 { font-size: clamp(2.4rem, 7vw, 3.6rem); margin: 10px 0 8px; letter-spacing: -.02em; line-height: 1.1; }
+  .grad { background: var(--accent); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .tagline { color: var(--muted); font-size: 1.15rem; max-width: 560px; margin: 0 auto 32px; }
+
   .btn {
-    display: inline-flex; align-items: center; gap: 10px;
-    padding: 14px 28px; border-radius: 10px;
+    position: relative; display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px; border-radius: 12px;
     background: var(--accent); color: #fff; text-decoration: none;
     font-weight: 600; font-size: 1.05rem;
-    transition: background .15s;
+    border: 1px solid rgba(255, 255, 255, .3);
+    box-shadow: 0 0 22px var(--glow), inset 0 1px 0 rgba(255, 255, 255, .25);
+    transition: box-shadow .2s, transform .2s, filter .2s;
   }
-  .btn:hover { background: var(--accent-hover); }
-  .btn[aria-disabled="true"] { opacity: .6; pointer-events: none; }
-  .meta { color: var(--muted); font-size: .9rem; margin-top: 12px; min-height: 1.4em; }
+  /* Reflexo na metade de cima, para o acabamento 3D. */
+  .btn::after {
+    content: ""; position: absolute; inset: 1px; border-radius: 11px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .05) 48%, transparent 52%);
+  }
+  .btn:hover { box-shadow: 0 0 34px rgba(91, 77, 255, .9), inset 0 1px 0 rgba(255, 255, 255, .25); filter: brightness(1.1); transform: translateY(-1px); }
+  .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+  .btn[aria-disabled="true"] { opacity: .6; pointer-events: none; box-shadow: none; }
+  .meta { color: var(--muted); font-size: .9rem; margin-top: 14px; min-height: 1.4em; }
+
   section { padding: 48px 0; }
   h2 { font-size: 1.5rem; margin: 0 0 20px; }
-  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-  .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
-  .card p { margin: 0; color: var(--muted); font-size: .95rem; }
-  .note { background: var(--surface); border-left: 3px solid var(--accent-2); border-radius: 8px; padding: 14px 18px; color: var(--muted); font-size: .95rem; }
+
+  .features h3 { margin: 12px 0 4px; font-size: 1.05rem; }
+  .features p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+  .icon {
+    width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+    background: var(--accent); color: #fff;
+    box-shadow: 0 0 12px rgba(91, 77, 255, .3), inset 0 1px 0 rgba(255, 255, 255, .3);
+  }
+  .icon svg { width: 19px; height: 19px; }
+
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  /* Ao passar o mouse, o cartão sobe, a borda acende no degradê e o ícone ganha brilho. */
+  .features .panel { padding: 20px; transition: transform .25s ease, box-shadow .25s ease; }
+  .features .panel::before { transition: opacity .25s ease; }
+  .features .panel::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; z-index: -1;
+    background: linear-gradient(135deg, var(--blue), var(--indigo) 50%, var(--violet));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: 0; transition: opacity .25s ease; pointer-events: none;
+  }
+  .features .icon { transition: transform .25s ease, box-shadow .25s ease; }
+  .features .panel:hover { transform: translateY(-4px); box-shadow: 0 14px 34px rgba(0, 0, 0, .45), 0 0 28px rgba(76, 91, 255, .22); }
+  .features .panel:hover::before { opacity: 0; }
+  .features .panel:hover::after { opacity: 1; }
+  .features .panel:hover .icon { transform: scale(1.12) rotate(-6deg); box-shadow: 0 0 22px rgba(91, 77, 255, .7), inset 0 1px 0 rgba(255, 255, 255, .3); }
+
+  .note { padding: 14px 18px; color: var(--muted); font-size: .95rem; }
   .note strong { color: var(--text); }
+  .note + .note { margin-top: 12px; }
+
   table { width: 100%; border-collapse: collapse; }
   th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
   th { color: var(--muted); font-weight: 500; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
-  td a { color: #a5adff; }
-  .tag { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 99px; background: rgba(88, 101, 242, .2); color: #a5adff; margin-left: 6px; }
+  td a { color: var(--link); }
+  .tag { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 99px; background: rgba(88, 101, 242, .2); color: var(--link); margin-left: 6px; }
   footer { color: var(--muted); font-size: .85rem; text-align: center; padding: 32px 0 48px; }
   footer a { color: var(--muted); }
+
+  @media (max-width: 640px) {
+    .features { grid-template-columns: 1fr; }
+    header.hero { padding-top: 48px; }
+  }
   @media (max-width: 560px) {
     th:nth-child(3), td:nth-child(3) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+    .features .panel:hover, .features .panel:hover .icon { transform: none; }
   }
 </style>
 </head>
@@ -67,7 +139,7 @@
 <header class="hero">
   <div class="wrap">
     <img src="icon.png" alt="">
-    <h1>ScreenCord</h1>
+    <h1>Screen<span class="grad">Cord</span></h1>
     <p class="tagline">Entre com a sua conta do Discord, monte grupos com seus amigos e compartilhe a tela em tempo real, com áudio.</p>
     <a id="download" class="btn" href="https://github.com/miguelsoeth/screencord/releases/latest" aria-disabled="true">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
@@ -81,19 +153,48 @@
   <section>
     <h2>O que ele faz</h2>
     <div class="features">
-      <div class="card"><h3>Login com o Discord</h3><p>Entra pelo navegador, sem senha passando pelo app. A sessão fica salva e cifrada no seu computador.</p></div>
-      <div class="card"><h3>Amigos e grupos</h3><p>Encontre quem também usa o ScreenCord, adicione como amigo e crie salas com presença em tempo real.</p></div>
-      <div class="card"><h3>Compartilhamento de tela</h3><p>Tela inteira ou uma janela, até 1080p a 60 fps, com o áudio do computador ou só do programa compartilhado.</p></div>
-      <div class="card"><h3>Leve</h3><p>Codificação H.264 pela placa de vídeo quando disponível. O instalador já traz tudo o que o app precisa.</p></div>
+      <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg></div>
+        <h3>Login com o Discord</h3>
+        <p>Entra pelo navegador, sem a senha passar pelo app.</p>
+      </div>
+      <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18.5 14a6.5 6.5 0 0 1 3 6"/></svg></div>
+        <h3>Grupos</h3>
+        <p>Salas com seus amigos, mostrando quem está conectado.</p>
+      </div>
+      <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
+        <h3>Tela ou janela</h3>
+        <p>Até 1080p a 60 fps, e dá para trocar a qualidade sem parar a transmissão.</p>
+      </div>
+      <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg></div>
+        <h3>Com áudio</h3>
+        <p>O som do computador vai junto com a imagem; quem assiste controla o volume.</p>
+      </div>
+      <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5h4"/><path d="M20 9V5h-4"/><path d="M4 15v4h4"/><path d="M20 15v4h-4"/></svg></div>
+        <h3>Tela cheia</h3>
+        <p>Assista na janela do app ou em tela cheia com F11 ou um clique duplo.</p>
+      </div>
+      <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+        <h3>Leve</h3>
+        <p>Usa a placa de vídeo e se atualiza sozinho.</p>
+      </div>
     </div>
   </section>
 
-  <section>
-    <h2>Instalação</h2>
-    <div class="note">
+  <section aria-labelledby="install">
+    <h2 id="install">Instalação</h2>
+    <div class="note panel">
       Requer <strong>Windows 10 (2004 ou mais recente) ou Windows 11, 64 bits</strong>. Instala só para o seu usuário, sem pedir administrador.
       O instalador ainda não é assinado: se o Windows mostrar <strong>"O Windows protegeu o computador"</strong>, clique em
       <strong>Mais informações → Executar assim mesmo</strong>.
+    </div>
+    <div class="note panel">
+      Os amigos são de quem também entrou no <strong>ScreenCord</strong>, não a sua lista de amigos do Discord: o Discord não deixa outros apps lerem essa lista.
     </div>
   </section>
 
