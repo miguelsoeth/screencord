@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ScreenCord</title>
-<meta name="description" content="Entre com o Discord, monte grupos com seus amigos e compartilhe a tela em tempo real.">
+<meta name="description" content="Entre com o Discord, monte grupos com seus amigos e compartilhe a tela em tempo real. Ou crie uma sala local, sem conta e sem servidor.">
 <link rel="icon" type="image/png" href="icon.png">
 <style>
   :root {
@@ -175,6 +175,28 @@
   details p { margin: 0; padding: 0 18px 16px; color: var(--muted); }
 
   .cta { text-align: center; padding: 64px 0 24px; }
+
+  /* Apoio no Ko-fi: o mesmo coral do botão do app. */
+  .kofi { display: flex; align-items: center; gap: 20px; padding: 22px 24px; }
+  .kofi .cup {
+    flex: none; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: #fff;
+    background: linear-gradient(135deg, #ff5e5b, #ff8a4c);
+    box-shadow: 0 0 18px rgba(255, 94, 91, .45), inset 0 1px 0 rgba(255, 255, 255, .3);
+  }
+  .kofi .cup svg { width: 24px; height: 24px; }
+  .kofi h3 { margin: 0 0 2px; font-size: 1.05rem; }
+  .kofi p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .kofi .btn-kofi { margin-left: auto; flex: none; }
+  .btn-kofi {
+    position: relative; display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 10px; color: #fff; text-decoration: none; font-weight: 600;
+    background: linear-gradient(135deg, #ff5e5b, #ff8a4c); border: 1px solid rgba(255, 255, 255, .33);
+    box-shadow: 0 0 14px rgba(255, 94, 91, .5);
+    transition: box-shadow .2s, transform .2s, filter .2s;
+  }
+  .btn-kofi:hover { box-shadow: 0 0 26px rgba(255, 94, 91, .85); filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-kofi:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+  .btn-kofi svg { width: 18px; height: 18px; }
   .cta h2 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin-bottom: 8px; }
   .cta p { color: var(--muted); margin: 0 0 24px; }
 
@@ -184,6 +206,8 @@
   }
   @media (max-width: 640px) {
     .features, .steps { grid-template-columns: 1fr; }
+    .kofi { flex-wrap: wrap; }
+    .kofi .btn-kofi { margin-left: 0; }
     header.hero { padding-top: 48px; }
   }
   @media (max-width: 560px) {
@@ -206,7 +230,7 @@
       </div>
     </div>
     <h1>Screen<span class="grad">Cord</span></h1>
-    <p class="tagline">Chame a galera para um grupo e assista à tela de quem está jogando, com som, como se estivesse do lado. Entra com o Discord, sem criar conta nova.</p>
+    <p class="tagline">Chame a galera para um grupo e assista à tela de quem está jogando, com som, como se estivesse do lado. Entra com o Discord, sem criar conta nova, ou usa sem conta numa sala local.</p>
     <a id="download" class="btn" href="https://github.com/miguelsoeth/screencord/releases/latest" aria-disabled="true">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
       <span id="download-label">Baixar para Windows</span>
@@ -215,7 +239,7 @@
   </div>
   <div class="hero-shot">
     <img class="shot" src="img/sala-ao-vivo.jpg" width="1280" height="760"
-         alt="Janela do ScreenCord: à esquerda, a transmissão ao vivo de um jogo de corrida; à direita, os grupos com quem está conectado e o selo AO VIVO.">
+         alt="Janela do ScreenCord: à esquerda, a transmissão ao vivo de um jogo de corrida; à direita, os grupos com quem está conectado e o selo AO VIVO; no alto, os botões Apoiar, amigos e idioma.">
   </div>
 </header>
 
@@ -226,11 +250,11 @@
     <div class="steps">
       <div class="panel">
         <h3>Entre com o Discord</h3>
-        <p>Um clique abre o navegador; você autoriza e pronto. Sua senha nunca passa pelo app.</p>
+        <p>Um clique abre o navegador; você autoriza e pronto. Sua senha nunca passa pelo app. Ou use sem conta, só com um nome.</p>
       </div>
       <div class="panel">
         <h3>Monte um grupo</h3>
-        <p>Adicione os amigos e crie salas como "Jogatina de sexta". Você vê na hora quem está online.</p>
+        <p>Adicione os amigos e crie salas como "Jogatina de sexta", ou uma sala local para quem está na mesma rede.</p>
       </div>
       <div class="panel">
         <h3>Clique em AO VIVO</h3>
@@ -245,14 +269,14 @@
         <h3>Compartilhe o jogo inteiro ou só uma janela</h3>
         <p>Escolha o que mostrar e a qualidade. O resto é com o app.</p>
         <ul>
-          <li>540p a 60 fps para jogos rápidos, ou 720p a 30 fps para mais nitidez</li>
+          <li>Até 1080p a 60 fps nas salas locais; com os amigos pela internet, 540p a 30 fps</li>
           <li>Som do computador junto, se você quiser</li>
-          <li>A qualidade se ajusta sozinha à sua internet</li>
+          <li>A qualidade se ajusta sozinha à sua conexão</li>
           <li>Troque a tela ou a qualidade sem derrubar quem está assistindo</li>
         </ul>
       </div>
       <img class="shot picker" src="img/compartilhar.jpg" width="560" height="600" loading="lazy"
-           alt="Janela Compartilhar tela: escolha entre tela ou janela, resolução, taxa de quadros e áudio.">
+           alt="Janela Compartilhar tela numa sala local: Tela 1 escolhida, 1080p e 60 fps marcados, qualidade automática até 5 Mbps direto entre os computadores, e áudio ligado.">
     </div>
 
     <div class="showcase flip">
@@ -268,6 +292,35 @@
       <img class="shot picker" src="img/amigos.jpg" width="520" height="364" loading="lazy"
            alt="Menu de amigos do ScreenCord com busca por nome de usuário e solicitações recebidas para aceitar ou recusar.">
     </div>
+
+    <div class="showcase">
+      <div class="showcase-text">
+        <h3>Salas locais: sem servidor e sem conta</h3>
+        <p>Na mesma rede, a sala fica no seu computador e a tela vai direto para quem assiste, na qualidade máxima.</p>
+        <ul>
+          <li>Funciona em LAN, Hamachi, Radmin e Tailscale</li>
+          <li>As salas da rede aparecem sozinhas na lista; se não, entre pelo IP</li>
+          <li>Tudo cifrado entre os computadores</li>
+          <li>"Usar sem conta" entra só com um nome, sem Discord</li>
+        </ul>
+      </div>
+      <img class="shot picker" src="img/sala-local.jpg" width="441" height="415" loading="lazy"
+           alt="Janela Criar sala local: nome da sala, botão Criar e, abaixo, o campo para entrar numa sala local pelo IP.">
+    </div>
+
+    <div class="showcase flip">
+      <div class="showcase-text">
+        <h3>Em português, inglês ou espanhol</h3>
+        <p>Troque o idioma quando quiser, no login ou no cabeçalho: a tela muda na hora.</p>
+        <ul>
+          <li>O instalador pergunta o idioma na primeira instalação</li>
+          <li>Sem escolha, vale o idioma do Windows</li>
+          <li>Entre com o Discord ou use sem conta, só nas salas locais</li>
+        </ul>
+      </div>
+      <img class="shot picker" src="img/login.jpg" width="470" height="512" loading="lazy"
+           alt="Tela inicial do ScreenCord com o menu de idiomas aberto (Português, English, Español) e os botões Conectar com Discord, Usar sem conta e Apoie no Ko-fi.">
+    </div>
   </section>
 
   <section>
@@ -275,13 +328,18 @@
     <div class="features">
       <div class="panel">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg></div>
-        <h3>Login com o Discord</h3>
-        <p>Entra pelo navegador, sem a senha passar pelo app.</p>
+        <h3>Com ou sem conta</h3>
+        <p>Entre com o Discord pelo navegador, sem a senha passar pelo app, ou só com um nome nas salas locais.</p>
       </div>
       <div class="panel">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18.5 14a6.5 6.5 0 0 1 3 6"/></svg></div>
         <h3>Grupos</h3>
         <p>Salas com seus amigos, mostrando quem está conectado.</p>
+      </div>
+      <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M12 8v4"/><path d="M5 16v-4h14v4"/></svg></div>
+        <h3>Salas locais</h3>
+        <p>Na LAN, Hamachi, Radmin ou Tailscale, direto entre os computadores, até 1080p a 60 fps.</p>
       </div>
       <div class="panel">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
@@ -299,9 +357,19 @@
         <p>Assista na janela do app ou em tela cheia com F11 ou um clique duplo.</p>
       </div>
       <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
+        <h3>Três idiomas</h3>
+        <p>Português, inglês e espanhol, trocando na hora.</p>
+      </div>
+      <div class="panel">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
         <h3>Leve</h3>
         <p>Usa a placa de vídeo e se atualiza sozinho.</p>
+      </div>
+      <div class="panel">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 2v2"/><path d="M10 2v2"/><path d="M14 2v2"/></svg></div>
+        <h3>Gratuito</h3>
+        <p>Sem anúncios e sem assinatura. Se curtir, dá para apoiar no Ko-fi.</p>
       </div>
     </div>
   </section>
@@ -313,12 +381,20 @@
       <p>Não. Os amigos são de quem também entrou no ScreenCord: o Discord não deixa outros apps lerem a sua lista. Mande o link desta página para a galera e adicione cada um pelo @.</p>
     </details>
     <details class="panel">
+      <summary>Preciso de conta no Discord?</summary>
+      <p>Só para os grupos com amigos pela internet. Para assistir junto na mesma rede (LAN, Hamachi, Radmin ou Tailscale), escolha <strong>Usar sem conta</strong> na tela inicial e entre numa sala local só com um nome.</p>
+    </details>
+    <details class="panel">
       <summary>O app vê a minha senha ou as minhas mensagens?</summary>
       <p>Não. O login acontece no site do Discord, e o app pede só a permissão de ler o seu nome e a sua foto.</p>
     </details>
     <details class="panel">
       <summary>O Windows disse "O Windows protegeu o computador". E agora?</summary>
-      <p>O instalador ainda não é assinado. Clique em <strong>Mais informações → Executar assim mesmo</strong>. Ele instala só para o seu usuário, sem pedir administrador.</p>
+      <p>O instalador ainda não é assinado. Clique em <strong>Mais informações → Executar assim mesmo</strong>. Ele instala só para o seu usuário.</p>
+    </details>
+    <details class="panel">
+      <summary>Por que o instalador pede permissão de administrador?</summary>
+      <p>Só na primeira instalação, para liberar as salas locais no Firewall do Windows. Se você recusar, a instalação segue normalmente e o app oferece o botão <strong>Liberar no firewall</strong> quando você criar ou entrar numa sala local.</p>
     </details>
     <details class="panel">
       <summary>Funciona em qual sistema?</summary>
@@ -335,6 +411,20 @@
     </a>
   </section>
 
+  <section aria-labelledby="apoie">
+    <div class="panel kofi">
+      <div class="cup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 2v2"/><path d="M10 2v2"/><path d="M14 2v2"/></svg></div>
+      <div>
+        <h3 id="apoie">Curtiu? Apoie o ScreenCord</h3>
+        <p>O app é gratuito. Um café no Ko-fi ajuda a manter o servidor no ar e as novidades saindo.</p>
+      </div>
+      <a class="btn-kofi" href="https://ko-fi.com/miguelsoeth" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        Apoie no Ko-fi
+      </a>
+    </div>
+  </section>
+
   <section id="versions" hidden>
     <h2>Versões</h2>
     <table>
@@ -345,7 +435,7 @@
 </main>
 
 <footer>
-  <a href="https://github.com/miguelsoeth/screencord/releases">Todas as versões no GitHub</a>
+  <a href="https://github.com/miguelsoeth/screencord/releases">Todas as versões no GitHub</a> · <a href="https://ko-fi.com/miguelsoeth" target="_blank" rel="noopener">Apoie no Ko-fi</a>
 </footer>
 
 <script>
