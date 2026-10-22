@@ -130,6 +130,13 @@
   th { color: var(--muted); font-weight: 500; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
   td a { color: var(--link); }
   .tag { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 99px; background: rgba(88, 101, 242, .2); color: var(--link); margin-left: 6px; }
+  .tag.warn { background: rgba(255, 176, 32, .16); color: #ffc252; }
+  .tag.danger { background: rgba(255, 82, 82, .16); color: #ff7a7a; }
+  /* Versões depreciadas ou com defeito: fora da lista principal, recolhidas, com o motivo. */
+  details.archived { margin-top: 16px; }
+  details.archived .inner { padding: 0 18px 12px; }
+  details.archived .inner > p { padding: 0 0 8px; }
+  .reason { display: block; color: var(--muted); font-size: .85rem; margin-top: 4px; }
   footer { color: var(--muted); font-size: .85rem; text-align: center; padding: 32px 0 48px; }
   footer a { color: var(--muted); }
   .source { color: var(--muted); font-size: .85rem; margin-top: 6px; }
@@ -434,6 +441,16 @@
       <thead><tr><th>Versão</th><th>Instalador</th><th>Data</th></tr></thead>
       <tbody id="versions-body"></tbody>
     </table>
+    <details id="archived" class="panel archived" hidden>
+      <summary id="archived-summary">Versões arquivadas</summary>
+      <div class="inner">
+        <p>Versões que não funcionam mais com o servidor ou que têm um defeito grave. Ficam aqui só para referência: instale a mais recente.</p>
+        <table>
+          <thead><tr><th>Versão</th><th>Instalador</th><th>Data</th></tr></thead>
+          <tbody id="archived-body"></tbody>
+        </table>
+      </div>
+    </details>
   </section>
 </main>
 
@@ -625,6 +642,16 @@
   const msiOf = r => (r.assets || []).find(a => a.name.toLowerCase().endsWith('.msi'));
   const sizeMb = a => (a.size / 1048576).toFixed(0) + ' MB';
   const date = s => new Date(s).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+  // Marca gravada nas notas pelo release-status.ps1 do repo do app:
+  // "<!-- screencord:status deprecated|broken", o motivo na linha seguinte e "-->".
+  const statusOf = r => {
+    const m = /<!-- screencord:status (deprecated|broken)\s*\r?\n([^\r\n]*)/.exec(r.body || '');
+    return m ? { kind: m[1], reason: m[2].trim() } : null;
+  };
+  const STATUS = {
+    deprecated: { label: 'depreciada', cls: 'warn' },
+    broken: { label: 'com defeito', cls: 'danger' }
+  };
 
   try {
     const res = await fetch('https://api.github.com/repos/miguelsoeth/screencord/releases?per_page=30', {
@@ -637,7 +664,10 @@
       return;
     }
 
-    const latest = releases[0];
+    // O botão nunca aponta para uma versão arquivada (se todas estiverem, fica com a mais nova).
+    const current = releases.filter(r => !statusOf(r));
+    const archived = releases.filter(r => statusOf(r));
+    const latest = current[0] || releases[0];
     const asset = msiOf(latest);
     btn.href = asset.browser_download_url;
     document.querySelectorAll('.js-download').forEach(a => { a.href = asset.browser_download_url; });
@@ -645,9 +675,9 @@
     meta.textContent = asset.name + ' · ' + sizeMb(asset) + ' · ' + date(latest.published_at);
     enable();
 
-    const body = document.getElementById('versions-body');
-    for (const r of releases) {
+    const row = r => {
       const a = msiOf(r);
+      const status = statusOf(r);
       const tr = document.createElement('tr');
 
       const tdVersion = document.createElement('td');
@@ -661,18 +691,42 @@
         tag.textContent = 'mais recente';
         tdVersion.append(tag);
       }
+      if (status) {
+        const tag = document.createElement('span');
+        tag.className = 'tag ' + STATUS[status.kind].cls;
+        tag.textContent = STATUS[status.kind].label;
+        const reason = document.createElement('span');
+        reason.className = 'reason';
+        reason.textContent = status.reason;
+        tdVersion.append(tag, reason);
+      }
 
       const tdFile = document.createElement('td');
       const dl = document.createElement('a');
       dl.href = a.browser_download_url;
       dl.textContent = a.name;
+      // Arquivada: dá para baixar, mas só depois de confirmar.
+      if (status) {
+        dl.addEventListener('click', e => {
+          const msg = r.tag_name + ' está ' + STATUS[status.kind].label + ': ' + status.reason +
+            '\n\nA versão mais recente é a ' + latest.tag_name + '. Baixar a ' + r.tag_name + ' mesmo assim?';
+          if (!confirm(msg)) e.preventDefault();
+        });
+      }
       tdFile.append(dl, ' (' + sizeMb(a) + ')');
 
       const tdDate = document.createElement('td');
       tdDate.textContent = date(r.published_at);
 
       tr.append(tdVersion, tdFile, tdDate);
-      body.append(tr);
+      return tr;
+    };
+
+    document.getElementById('versions-body').append(...current.map(row));
+    if (archived.length) {
+      document.getElementById('archived-body').append(...archived.map(row));
+      document.getElementById('archived-summary').textContent = 'Versões arquivadas (' + archived.length + ')';
+      document.getElementById('archived').hidden = false;
     }
     document.getElementById('versions').hidden = false;
   } catch {
