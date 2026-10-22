@@ -1,6 +1,6 @@
 # ScreenCord
 
-Página e downloads do ScreenCord: <https://miguelsoeth.github.io/screencord/>
+Página e downloads do ScreenCord: <https://screencord.miguelsoeth.online/>
 
 O código do aplicativo está em [screencord.app](https://github.com/miguelsoeth/screencord.app) e o da API em [screencord.api](https://github.com/miguelsoeth/screencord.api), ambos abertos. Problemas e sugestões: [issues do app](https://github.com/miguelsoeth/screencord.app/issues).
 
