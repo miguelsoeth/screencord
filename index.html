@@ -275,7 +275,7 @@
       <span id="download-label">Baixar para Windows</span>
     </a>
     <div id="download-meta" class="meta">Procurando a versão mais recente…</div>
-    <div class="source">Grátis e de código aberto (GPL-3.0) · <a href="https://github.com/miguelsoeth/screencord.app">Ver o código no GitHub</a> · <a href="https://github.com/miguelsoeth/screencord.app#code-signing-policy">Code signing policy</a></div>
+    <div class="source">Grátis e de código aberto (GPL-3.0) · <a href="https://github.com/miguelsoeth/screencord.app">Ver o código no GitHub</a></div>
   </div>
   <div class="hero-shot">
     <img class="shot" src="img/sala-ao-vivo.jpg" width="1280" height="760"
@@ -309,7 +309,7 @@
         <h3>Compartilhe o jogo inteiro ou só uma janela</h3>
         <p>Escolha o que mostrar e a qualidade. O resto é com o app.</p>
         <ul>
-          <li>Até 1080p a 60 fps nas salas locais; com os amigos pela internet, 720p a 30 fps</li>
+          <li>Até 1080p a 60 fps nas salas locais; com os amigos pela internet, 720p a 60 fps ou 1080p a 30 fps (o limite é do servidor e pode mudar)</li>
           <li>Som do computador junto, se você quiser</li>
           <li>A qualidade se ajusta sozinha à sua conexão</li>
           <li>Troque a tela ou a qualidade sem derrubar quem está assistindo</li>
@@ -327,6 +327,7 @@
           <li>Veja quem está conectado em cada grupo</li>
           <li>Entradas e saídas aparecem na hora</li>
           <li>Assista em tela cheia com F11 ou um clique duplo</li>
+          <li>Ou veja até quatro telas ao mesmo tempo, numa grade que se ajusta à janela, com volume e tela cheia em cada uma</li>
         </ul>
       </div>
       <img class="shot picker" src="img/amigos.jpg" width="520" height="364" loading="lazy"
@@ -393,8 +394,8 @@
       </div>
       <div class="panel">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5h4"/><path d="M20 9V5h-4"/><path d="M4 15v4h4"/><path d="M20 15v4h-4"/></svg></div>
-        <h3>Tela cheia</h3>
-        <p>Assista na janela do app ou em tela cheia com F11 ou um clique duplo.</p>
+        <h3>Várias telas</h3>
+        <p>Assista na janela do app, em tela cheia (F11 ou clique duplo) ou a até quatro transmissões lado a lado.</p>
       </div>
       <div class="panel">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
@@ -404,7 +405,7 @@
       <div class="panel">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
         <h3>Leve</h3>
-        <p>Usa a placa de vídeo e se atualiza sozinho.</p>
+        <p>Usa a placa de vídeo e se atualiza sozinho; se preferir, dá para desligar ou pular uma versão.</p>
       </div>
       <div class="panel">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 2v2"/><path d="M10 2v2"/><path d="M14 2v2"/></svg></div>
@@ -430,15 +431,19 @@
     </details>
     <details class="panel">
       <summary>O Windows disse "O Windows protegeu o computador". E agora?</summary>
-      <p>O instalador ainda não é assinado. Clique em <strong>Mais informações → Executar assim mesmo</strong>. Ele instala só para o seu usuário. O <a href="https://github.com/miguelsoeth/screencord.app">código</a> é aberto, e o instalador é gerado a partir dele pelo pipeline público do GitHub. O pedido de assinatura grátis para projetos de código aberto está em análise no SignPath Foundation (veja a <a href="https://github.com/miguelsoeth/screencord.app#code-signing-policy">Code signing policy</a>).</p>
+      <p>O instalador ainda não é assinado. Clique em <strong>Mais informações → Executar assim mesmo</strong>. Ele instala só para o seu usuário. O <a href="https://github.com/miguelsoeth/screencord.app">código</a> é aberto, e o instalador é gerado a partir dele pelo pipeline público do GitHub.</p>
     </details>
     <details class="panel">
       <summary>Por que o instalador pede permissão de administrador?</summary>
       <p>Só na primeira instalação, para liberar as salas locais no Firewall do Windows. Se você recusar, a instalação segue normalmente e o app oferece o botão <strong>Liberar no firewall</strong> quando você criar ou entrar numa sala local.</p>
     </details>
     <details class="panel">
+      <summary>O app envia algum dado sobre mim?</summary>
+      <p>Só relatórios de erro, para eu corrigir problemas: a mensagem e o estado do app no momento da falha, sem tokens, nomes de janela ou dados da conta. Dá para desligar em <strong>Configurações → Privacidade</strong>. Os detalhes estão na <a href="https://github.com/miguelsoeth/screencord.app#privacidade">página de privacidade</a>.</p>
+    </details>
+    <details class="panel">
       <summary>Funciona em qual sistema?</summary>
-      <p>Windows 10 (versão 2004 ou mais recente) ou Windows 11, 64 bits. Novas versões são instaladas sozinhas ao abrir o app.</p>
+      <p>Windows 10 (versão 2004 ou mais recente) ou Windows 11, 64 bits. Ao abrir, o app instala as versões novas sozinho (dá para desligar em Configurações → Atualizações).</p>
     </details>
   </section>
 
@@ -486,7 +491,7 @@
 
 <footer>
   <a href="https://github.com/miguelsoeth/screencord.app">Código-fonte</a> · <a href="https://github.com/miguelsoeth/screencord/releases">Todas as versões no GitHub</a> · <a href="https://ko-fi.com/miguelsoeth" target="_blank" rel="noopener">Apoie no Ko-fi</a><br>
-  <a href="https://github.com/miguelsoeth/screencord.app#code-signing-policy">Code signing policy</a> · <a href="https://github.com/miguelsoeth/screencord.app#privacidade">Privacidade</a> · Free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate by <a href="https://signpath.org">SignPath Foundation</a> (pedido em análise)
+  <a href="https://github.com/miguelsoeth/screencord.app#privacidade">Privacidade</a>
 </footer>
 
 <script>
