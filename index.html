@@ -124,6 +124,10 @@
   .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
   .btn[aria-disabled="true"] { opacity: .6; pointer-events: none; box-shadow: none; }
   .meta { color: var(--muted); font-size: .9rem; margin-top: 14px; min-height: 1.4em; }
+  /* Hash do instalador e link para a análise no VirusTotal, para quem quiser conferir o arquivo. */
+  .verify { margin-top: 4px; font-size: .8rem; overflow-wrap: anywhere; }
+  .verify code { font: .78rem Consolas, ui-monospace, monospace; }
+  .verify a { color: var(--link); }
 
   section { padding: 48px 0; }
   h2 { font-size: 1.5rem; margin: 0 0 20px; }
@@ -275,6 +279,7 @@
       <span id="download-label">Baixar para Windows</span>
     </a>
     <div id="download-meta" class="meta">Procurando a versão mais recente…</div>
+    <div id="download-verify" class="meta verify" hidden></div>
     <div class="source">Grátis e de código aberto (GPL-3.0) · <a href="https://github.com/miguelsoeth/screencord.app">Ver o código no GitHub</a></div>
   </div>
   <div class="hero-shot">
@@ -462,7 +467,7 @@
     </details>
     <details class="panel">
       <summary>O Windows disse "O Windows protegeu o computador". E agora?</summary>
-      <p>O instalador ainda não é assinado. Clique em <strong>Mais informações → Executar assim mesmo</strong>. Ele instala só para o seu usuário. O <a href="https://github.com/miguelsoeth/screencord.app">código</a> é aberto, e o instalador é gerado a partir dele pelo pipeline público do GitHub.</p>
+      <p>O instalador ainda não é assinado. Clique em <strong>Mais informações → Executar assim mesmo</strong>. Ele instala só para o seu usuário. O <a href="https://github.com/miguelsoeth/screencord.app">código</a> é aberto, e o instalador é gerado a partir dele pelo pipeline público do GitHub. Para conferir o arquivo, compare o SHA-256 que aparece abaixo do botão de download e veja a análise no VirusTotal pelo link ao lado dele.</p>
     </details>
     <details class="panel">
       <summary>Por que o instalador pede permissão de administrador?</summary>
@@ -703,9 +708,20 @@
   const btn = document.getElementById('download');
   const label = document.getElementById('download-label');
   const meta = document.getElementById('download-meta');
+  const verify = document.getElementById('download-verify');
   const enable = () => btn.removeAttribute('aria-disabled');
 
   const msiOf = r => (r.assets || []).find(a => a.name.toLowerCase().endsWith('.msi'));
+  // O GitHub informa o hash de cada arquivo da release ("sha256:<hex>"); com ele sai o link da análise no VirusTotal.
+  const sha256Of = a => /^sha256:([0-9a-f]{64})$/.exec(a.digest || '')?.[1] ?? null;
+  const virusTotalLink = (sha, text) => {
+    const link = document.createElement('a');
+    link.href = 'https://www.virustotal.com/gui/file/' + sha;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = text;
+    return link;
+  };
   const sizeMb = a => (a.size / 1048576).toFixed(0) + ' MB';
   const date = s => new Date(s).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
   // Marca gravada nas notas pelo release-status.ps1 do repo do app:
@@ -739,6 +755,13 @@
     document.querySelectorAll('.js-download').forEach(a => { a.href = asset.browser_download_url; });
     label.textContent = 'Baixar ' + latest.tag_name + ' para Windows';
     meta.textContent = asset.name + ' · ' + sizeMb(asset) + ' · ' + date(latest.published_at);
+    const sha = sha256Of(asset);
+    if (sha) {
+      const code = document.createElement('code');
+      code.textContent = sha;
+      verify.append('SHA-256: ', code, ' · ', virusTotalLink(sha, 'Verificar no VirusTotal'));
+      verify.hidden = false;
+    }
     enable();
 
     const row = r => {
@@ -779,7 +802,10 @@
           if (!confirm(msg)) e.preventDefault();
         });
       }
-      tdFile.append(dl, ' (' + sizeMb(a) + ')');
+      tdFile.append(dl, ' (' + sizeMb(a));
+      const sha = sha256Of(a);
+      if (sha) tdFile.append(' · ', virusTotalLink(sha, 'VirusTotal'));
+      tdFile.append(')');
 
       const tdDate = document.createElement('td');
       tdDate.textContent = date(r.published_at);
